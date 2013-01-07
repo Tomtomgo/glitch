@@ -91,7 +91,7 @@ class Glitch
     widest_pixel = (dCanvasWidth*4)-1
 
     for e,i in data
-
+      
       if variation!=0
         data[i+variation] = data[i+(variation_4)] if ((i&3) is 0)
         # & 3 means % 4
