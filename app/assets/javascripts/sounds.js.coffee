@@ -57,11 +57,8 @@ class Sounds
     @analyser.connect(javascriptNode)
     console.log('Analyzer is set')
 
-  updateFFT: ->
-    array = new Uint8Array(@analyser.frequencyBinCount)
-    @analyser.getByteFrequencyData(array)
-    glitch.setFFTData(array, [@average(array)])
-    
+  updateFFT: (array) ->
+    @analyser.getByteFrequencyData(array)  
 
 $(document).ready ->
   window.sounds = new Sounds()

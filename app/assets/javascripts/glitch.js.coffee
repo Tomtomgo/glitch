@@ -2,9 +2,10 @@ class Glitch
   
   data_canvas_el: 'canvas#data_canv'
   canvas_el: 'canvas#canv'
-  fftData: []
+  fftData: null
   averages: []
   sineMemo: []
+  sineMemo_20: []
 
   constructor: ->
 
@@ -20,8 +21,11 @@ class Glitch
     @initSineMemo()
 
   initSineMemo: ->
-    for i in [0..2000]
+    for i in [-2000..2000]
       @sineMemo[i] = Math.round(Math.sin(i))
+
+    for i in [-2000..2000]
+      @sineMemo_20[i] = Math.round(Math.sin(i))*20
 
   setCanvasSizes: ->  
     @canvas.height = $(window).height()
@@ -52,9 +56,6 @@ class Glitch
     @video = document.querySelector('video')
         
   fuckup: ->
-
-    sounds.updateFFT()
-
     canvasWidth = @canvas.width
     canvasHeight = @canvas.height
     
@@ -72,21 +73,10 @@ class Glitch
     high = 500
     mid = 250
 
-    if @fftData[high] > threshold
-      offset = Math.round(@fftData[high])
-    else
-      offset = 0
-
-    if @fftData[low] > threshold
-      variation = @fftData[low]
-    else 
-      variation = 0
-
-    if @fftData[mid] > bend_threshold
-      bend = Math.round(@fftData[mid])
-    else 
-      bend = 0
-    
+    offset = if @fftData[high] > threshold then Math.round(@fftData[high]) else 0
+    variation = if @fftData[low] > threshold then @fftData[low] else 0
+    bend = if @fftData[mid] > bend_threshold then Math.round(@fftData[mid]) else 0
+        
     offset_4 = offset*4
     variation_4 = variation*4
 
@@ -103,8 +93,7 @@ class Glitch
         data[i-offset] = data[i+(offset_4)] if i%4==0
 
       if bend != 0 and i%4==0
-        o = (@sineMemo[t]*5)*4
-        #data[i] = data[i+o]
+        o = @sineMemo_20[t]
         data[i+1] = data[i+1+o]
       
       if bend != 0 and i % widest_pixel == 0
@@ -114,6 +103,7 @@ class Glitch
 
   animate: ->
     webkitRequestAnimationFrame((=>@animate()))
+    sounds.updateFFT(@fftData)
     @fuckup()
 
   go: ->
@@ -123,6 +113,7 @@ class Glitch
       sounds.connectVideoAudio(@video)
       @video.playbackRate = 1
       @video.play()
+      @fftData = new Uint8Array(sounds.analyser.frequencyBinCount)
       @animate())
     )
 
