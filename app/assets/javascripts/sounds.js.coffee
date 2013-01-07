@@ -9,10 +9,10 @@ class Sounds
 
   connectVideoAudio: (element) ->
     source = @context.createMediaElementSource(element)
-    #source.connect(@context.destination)
     
     @setupAnalyzer(source)
-    @addEffects(source)
+    #@addEffects(source)
+    source.connect(@context.destination)
     
   addEffects: (source) ->
     @tuna = new Tuna(@context)
@@ -51,7 +51,7 @@ class Sounds
     javascriptNode.connect(@context.destination)
 
     @analyser = @context.createAnalyser()
-    @analyser.smoothingTimeConstant = 0
+    @analyser.smoothingTimeConstant = 0.2
     
     source.connect(@analyser)
     @analyser.connect(javascriptNode)

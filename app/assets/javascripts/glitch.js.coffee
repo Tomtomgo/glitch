@@ -30,8 +30,10 @@ class Glitch
   setCanvasSizes: ->  
     @canvas.height = $(window).height()
     @canvas.width = $(window).width()
-    @data_canvas.height = $(window).height()
-    @data_canvas.width = $(window).width()
+
+
+    @data_canvas.height = if $(window).height() < 800 then $(window).height() else 800
+    @data_canvas.width = if $(window).width() < 600 then $(window).width() else 600
 
   setFFTData: (data, averages) ->
     @fftData = data
@@ -59,47 +61,53 @@ class Glitch
     canvasWidth = @canvas.width
     canvasHeight = @canvas.height
     
-    #@data_ctx.drawImage(@video, 0,0, canvasWidth, canvasHeight)
-    @ctx.drawImage(@video, 0,0, canvasWidth, canvasHeight)
-    imageData = @ctx.getImageData(0, 0, canvasWidth, canvasHeight)
-    #imageOutData = @ctx.getImageData(0, 0, canvasWidth, canvasHeight)
-
-    data = imageData.data
-    #outData = imageOutData.data
+    dCanvasWidth = @data_canvas.width
+    dCanvasHeight = @data_canvas.height
     
-    threshold = 100
-    bend_threshold = 100
+    #@ctx.drawImage(@video, 0,0, canvasWidth, canvasHeight)
+    #imageData = @ctx.getImageData(0, 0, canvasWidth, canvasHeight)
+    @data_ctx.drawImage(@video, 0,0, dCanvasWidth, dCanvasHeight)
+    imageOutData = @data_ctx.getImageData(0, 0, dCanvasWidth, dCanvasHeight)
+
+    #data = imageData.data
+    data = imageOutData.data
+    
+    low_threshold = 100
+    high_threshold = 40
+    bend_threshold = 90
     low = 30
     high = 500
     mid = 250
 
-    offset = if @fftData[high] > threshold then Math.round(@fftData[high]) else 0
-    variation = if @fftData[low] > threshold then @fftData[low] else 0
+    offset = if @fftData[high] > high_threshold then Math.round(@fftData[high]) else 0
+    variation = if @fftData[low] > low_threshold then @fftData[low] else 0
     bend = if @fftData[mid] > bend_threshold then Math.round(@fftData[mid]) else 0
-        
+    
     offset_4 = offset*4
     variation_4 = variation*4
 
     currentLine = 1
     t = 0
-    widest_pixel = (canvasWidth*4)
+    widest_pixel = (dCanvasWidth*4)-1
 
     for e,i in data
 
       if variation!=0
-        data[i] = data[i+(variation_4)] if i%2==0
+        data[i+variation] = data[i+(variation_4)] if ((i&3) is 0)
+        # & 3 means % 4
 
       if offset!=0
-        data[i-offset] = data[i+(offset_4)] if i%4==0
+        data[i-offset] = data[i+(offset_4)] if ((i&3) is 0)
 
-      if bend != 0 and i%4==0
+      if bend != 0 and ((i&3) is 0)
         o = @sineMemo_20[t]
         data[i+1] = data[i+1+o]
       
       if bend != 0 and i % widest_pixel == 0
         t+=1
-      
-    @ctx.putImageData(imageData, 0, 0)
+    
+    @data_ctx.putImageData(imageOutData, 0, 0)
+    @ctx.drawImage(@data_canvas, 0,0, canvasWidth, canvasHeight)
 
   animate: ->
     webkitRequestAnimationFrame((=>@animate()))
