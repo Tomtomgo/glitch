@@ -6,6 +6,9 @@ class Glitch
   averages: []
   sineMemo: []
   sineMemo_20: []
+  fps: 0
+  now: null
+  lastUpdate: (new Date)*1 - 1
 
   constructor: ->
 
@@ -32,8 +35,8 @@ class Glitch
     @canvas.width = $(window).width()
 
 
-    @data_canvas.height = if $(window).height() < 800 then $(window).height() else 800
-    @data_canvas.width = if $(window).width() < 600 then $(window).width() else 600
+    @data_canvas.height = if $(window).height() < 300 then $(window).height() else 400
+    @data_canvas.width = if $(window).width() < 300 then $(window).width() else 300
 
   setFFTData: (data, averages) ->
     @fftData = data
@@ -64,12 +67,9 @@ class Glitch
     dCanvasWidth = @data_canvas.width
     dCanvasHeight = @data_canvas.height
     
-    #@ctx.drawImage(@video, 0,0, canvasWidth, canvasHeight)
-    #imageData = @ctx.getImageData(0, 0, canvasWidth, canvasHeight)
     @data_ctx.drawImage(@video, 0,0, dCanvasWidth, dCanvasHeight)
     imageOutData = @data_ctx.getImageData(0, 0, dCanvasWidth, dCanvasHeight)
 
-    #data = imageData.data
     data = imageOutData.data
     
     low_threshold = 100
@@ -109,10 +109,18 @@ class Glitch
     @data_ctx.putImageData(imageOutData, 0, 0)
     @ctx.drawImage(@data_canvas, 0,0, canvasWidth, canvasHeight)
 
+  fpscalc: ->
+    thisFrameFPS = 1000 / ((@now=new Date) - @lastUpdate)
+    @fps += (thisFrameFPS - @fps) / 10
+    @lastUpdate = @now
+
+
   animate: ->
     webkitRequestAnimationFrame((=>@animate()))
     sounds.updateFFT(@fftData)
     @fuckup()
+    @fpscalc()
+
 
   go: ->
     @initVid()
@@ -122,8 +130,10 @@ class Glitch
       @video.playbackRate = 1
       @video.play()
       @fftData = new Uint8Array(sounds.analyser.frequencyBinCount)
-      @animate())
-    )
+      @animate()
+      @fpsOut = $('#fps')
+      setInterval((=>@fpsOut.text(Math.round(@fps))), 1000)
+    ))
 
 $(document).ready ->
   window.glitch = new Glitch()
