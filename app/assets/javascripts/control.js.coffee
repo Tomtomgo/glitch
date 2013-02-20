@@ -7,6 +7,7 @@ class Control
 
     $("#gogo").click((=>
       @setYT()
+      @run()
       ))
 
   setYT:->
@@ -21,10 +22,13 @@ class Control
           console.log(webmUrl['url'])
           $('#controls').hide()
           $('video').attr('src', webmUrl['url'])
-          console.log('run!')
-          window.glitch.go()
+          @run()
 
       ))
+
+  run: ->
+    console.log('run!')
+    window.glitch.go()
 
 $(document).ready(->
   new Control())
