@@ -10,8 +10,18 @@ class Control
       @run()
       ))
 
-  setYT:->
-    youtubeId = $('#video_source').val()
+    that = @
+
+    $(".predefined").click((->
+      that.setYT($(@).text())
+      that.run()
+      ))
+
+  setYT: (predefined)->
+    if predefined
+      youtubeId = predefined
+    else
+      youtubeId = $('#video_source').val()
     
     if youtubeId != ""
 

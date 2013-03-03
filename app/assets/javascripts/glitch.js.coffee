@@ -72,16 +72,16 @@ class Glitch
 
     data = imageOutData.data
     
-    low_threshold = 100
-    high_threshold = 40
-    bend_threshold = 90
+    low_threshold = 150
+    high_threshold = 150
+    mid_threshold = 150
     low = 30
     high = 500
     mid = 250
 
-    offset = if @fftData[high] > high_threshold then Math.round(@fftData[high]) else 0
-    variation = if @fftData[low] > low_threshold then @fftData[low] else 0
-    bend = if @fftData[mid] > bend_threshold then Math.round(@fftData[mid]) else 0
+    offset = if @fftData[high] > high_threshold then 175-Math.round(@fftData[high]) else 0
+    variation = if @fftData[low] > low_threshold then Math.round(@fftData[low]/10) else 0
+    bend = if @fftData[mid] > mid_threshold then Math.round(@fftData[mid]) else 0
     
     offset_4 = offset*4
     variation_4 = variation*4
@@ -92,16 +92,16 @@ class Glitch
 
     for e,i in data
       
-      if variation!=0
-        data[i+variation] = data[i+(variation_4)] if ((i&3) is 0)
+      #if variation!=0
+      #  data[i+variation] = data[i+(variation)] if ((i&3) is not 3)
         # & 3 means % 4
 
       if offset!=0
-        data[i-offset] = data[i+(offset_4)] if ((i&3) is 0)
+        data[i-offset] = data[i+(offset)] if ((i&3) is 1)
 
-      if bend != 0 and ((i&3) is 0)
-        o = @sineMemo_20[t]
-        data[i+1] = data[i+1+o]
+      # Horizontal lines
+      if bend != 0 and ((i&3) is 1)
+        data[i-2] = data[i+bend+@sineMemo_20[t]]
       
       if bend != 0 and i % widest_pixel == 0
         t+=1
