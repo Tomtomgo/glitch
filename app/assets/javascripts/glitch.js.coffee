@@ -10,6 +10,10 @@ class Glitch
   now: null
   lastUpdate: (new Date)*1 - 1
 
+  low_threshold: 150
+  mid_threshold: 150
+  high_threshold: 150
+
   constructor: ->
 
     @initEvents()
@@ -33,7 +37,6 @@ class Glitch
   setCanvasSizes: ->  
     @canvas.height = $(window).height()
     @canvas.width = $(window).width()
-
 
     @data_canvas.height = if $(window).height() < 300 then $(window).height() else 400
     @data_canvas.width = if $(window).width() < 300 then $(window).width() else 300
@@ -72,9 +75,9 @@ class Glitch
 
     data = imageOutData.data
     
-    low_threshold = 150
-    high_threshold = 150
-    mid_threshold = 150
+    low_threshold = @low_threshold
+    high_threshold = @high_threshold
+    mid_threshold = @mid_threshold
     low = 30
     high = 500
     mid = 250
@@ -92,12 +95,12 @@ class Glitch
 
     for e,i in data
       
-      #if variation!=0
-      #  data[i+variation] = data[i+(variation)] if ((i&3) is not 3)
+      if variation!=0
+        data[i+variation] = data[i+(variation)] if ((i&3) is not 3)
         # & 3 means % 4
 
       if offset!=0
-        data[i-offset] = data[i+(offset)] if ((i&3) is 1)
+        data[i-offset] = data[i+(offset)] if ((i&3) is 0)
 
       # Horizontal lines
       if bend != 0 and ((i&3) is 1)

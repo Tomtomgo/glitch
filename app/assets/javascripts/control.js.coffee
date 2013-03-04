@@ -17,6 +17,25 @@ class Control
       that.run()
       ))
 
+    @connectControls()
+
+  connectControls: ->
+    $('#low_threshold').slider(
+      min: 0
+      max: 255
+      slide: (e,ui)->
+        window.glitch.low_threshold = ui.value)
+    $('#mid_threshold').slider(
+      min: 0
+      max: 255
+      slide: (e,ui)->
+        window.glitch.mid_threshold = ui.value)
+    $('#high_threshold').slider(
+      min: 0
+      max: 255
+      slide: (e,ui)->
+        window.glitch.high_threshold = ui.value)
+
   setYT: (predefined)->
     if predefined
       youtubeId = predefined
@@ -30,7 +49,7 @@ class Control
         webmUrl = video.getSource("video/webm", "medium")
         if webmUrl != ""
           console.log(webmUrl['url'])
-          $('#controls').hide()
+          $('#start').hide()
           $('video').attr('src', webmUrl['url'])
           @run()
 
