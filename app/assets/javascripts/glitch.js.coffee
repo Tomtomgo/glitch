@@ -10,9 +10,13 @@ class Glitch
   now: null
   lastUpdate: (new Date)*1 - 1
 
+  # Settable vars
   low_threshold: 150
   mid_threshold: 150
-  high_threshold: 150
+  playback_rate: 1
+  red_shift: 0.5
+  green_shift: 0.5
+  blue_shift: 0.5
 
   constructor: ->
 
@@ -26,6 +30,10 @@ class Glitch
     @setCanvasSizes()
 
     @initSineMemo()
+
+  setPlaybackRate: (rate) ->
+    @playback_rate = rate
+    @video.playbackRate = @playback_rate
 
   initSineMemo: ->
     for i in [-2000..2000]
@@ -75,27 +83,28 @@ class Glitch
 
     data = imageOutData.data
     
-    low_threshold = @low_threshold
-    mid_threshold = @mid_threshold
     low = 30
     high = 500
     mid = 250
 
-    variation = if @fftData[low] > low_threshold then Math.round(175-@fftData[low]) else 0
-    bend = if @fftData[mid] > mid_threshold then Math.round(175-@fftData[mid]) else 0
+    variation = if @fftData[low] > @low_threshold then Math.round(175-@fftData[low]) else 0
+    bend = if @fftData[mid] > @mid_threshold then Math.round(175-@fftData[mid]) else 0
     
-    variation_4 = variation*4
+    #variation_4 = variation*4
 
-    currentLine = 1
+    red_stay = 1 - @red_shift
+    green_stay = 1 - @red_shift
+    blue_stay = 1 - @red_shift
+
     t = 0
     widest_pixel = (dCanvasWidth*4)-1
 
-    for e,i in data
+    for i in [0..data.length] by 1 # e,i in data #
 
       if variation!=0
-        data[i-variation] = (data[i+variation]/2)+(data[i]/2) if ((i&3) is 0)
-        data[i-variation] = (data[i+variation]/2)+(data[i]/2) if ((i&3) is 1)
-        data[i-variation] = (data[i+variation]/2)+(data[i]/2) if ((i&3) is 2)
+        data[i-variation] = (data[i+variation]*@red_shift)+(data[i]*red_stay) if ((i&3) is 0)
+        data[i-variation] = (data[i+variation]*@green_shift)+(data[i]*green_stay) if ((i&3) is 1)
+        data[i-variation] = (data[i+variation]*@blue_shift)+(data[i]*blue_stay) if ((i&3) is 2)
         # & 3 means % 4
 
       # Horizontal lines
@@ -128,7 +137,6 @@ class Glitch
     @video.load()
     $(@video).on('loadedmetadata', (=>
       sounds.connectVideoAudio(@video)
-      @video.playbackRate = 0.5
       @video.play()
       @fftData = new Uint8Array(sounds.analyser.frequencyBinCount)
       @animate()
