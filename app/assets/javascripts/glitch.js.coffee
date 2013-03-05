@@ -76,17 +76,14 @@ class Glitch
     data = imageOutData.data
     
     low_threshold = @low_threshold
-    high_threshold = @high_threshold
     mid_threshold = @mid_threshold
     low = 30
     high = 500
     mid = 250
 
-    offset = if @fftData[high] > high_threshold then 175-Math.round(@fftData[high]) else 0
-    variation = if @fftData[low] > low_threshold then Math.round(@fftData[low]/10) else 0
-    bend = if @fftData[mid] > mid_threshold then Math.round(@fftData[mid]) else 0
+    variation = if @fftData[low] > low_threshold then Math.round(175-@fftData[low]) else 0
+    bend = if @fftData[mid] > mid_threshold then Math.round(175-@fftData[mid]) else 0
     
-    offset_4 = offset*4
     variation_4 = variation*4
 
     currentLine = 1
@@ -94,20 +91,21 @@ class Glitch
     widest_pixel = (dCanvasWidth*4)-1
 
     for e,i in data
-      
+
       if variation!=0
-        data[i+variation] = data[i+(variation)] if ((i&3) is not 3)
+        data[i-variation] = (data[i+variation]/2)+(data[i]/2) if ((i&3) is 0)
+        data[i-variation] = (data[i+variation]/2)+(data[i]/2) if ((i&3) is 1)
+        data[i-variation] = (data[i+variation]/2)+(data[i]/2) if ((i&3) is 2)
         # & 3 means % 4
 
-      if offset!=0
-        data[i-offset] = data[i+(offset)] if ((i&3) is 0)
-
       # Horizontal lines
-      if bend != 0 and ((i&3) is 1)
-        data[i-2] = data[i+bend+@sineMemo_20[t]]
+      if bend != 0
+
+        if (i&3) is 3
+          data[i] = data[i+bend+@sineMemo_20[t]]
       
-      if bend != 0 and i % widest_pixel == 0
-        t+=1
+        if i % widest_pixel == 0
+          t+=1
     
     @data_ctx.putImageData(imageOutData, 0, 0)
     @ctx.drawImage(@data_canvas, 0,0, canvasWidth, canvasHeight)
@@ -130,7 +128,7 @@ class Glitch
     @video.load()
     $(@video).on('loadedmetadata', (=>
       sounds.connectVideoAudio(@video)
-      @video.playbackRate = 1
+      @video.playbackRate = 0.5
       @video.play()
       @fftData = new Uint8Array(sounds.analyser.frequencyBinCount)
       @animate()
