@@ -66,6 +66,14 @@ class Control
         window.glitch.setPlaybackRate(ui.value)
         $('#playback_rate_val').text(ui.value) )
 
+    $('#loop').click(->
+      $(@).text(window.glitch.hitLoop())
+    )
+
+    $('#fx').click(->
+      $(@).text(window.sounds.fxSet())
+    )
+
   updateControls: ->
     $('#low_threshold').slider('value', window.glitch.low_threshold)
     $('#mid_threshold').slider('value', window.glitch.mid_threshold)

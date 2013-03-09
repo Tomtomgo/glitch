@@ -17,7 +17,7 @@
 
   <canvas id="canv" width="100%" height="100%"></canvas>
   <canvas id="data_canv" style="display: none;" width="100%" height="100%"></canvas>
-  <video width="100%" height="100%" style="display: none;"></video>
+  <video width="100%" height="100%" preload="true" style="display: none;"></video>
 
   <div id="start" class="box">
     <div class="predefined btn">AyJfHU4GoOQ</div>
@@ -41,6 +41,10 @@
     <div id="blue_shift"></div>
     <label for="playback_rate">Playback rate (<span id="playback_rate_val"></span>)</label>
     <div id="playback_rate"></div>
+
+    <div id="loop" class="btn small">Loop IN</div>
+
+    <div id="fx" class="btn small">FX</div>
 
     <div id="fps"></div>
   </div>

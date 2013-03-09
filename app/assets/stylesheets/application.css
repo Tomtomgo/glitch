@@ -47,11 +47,16 @@ body{
     margin: 10px auto;
     background-color: #0033aa;
     color: #fff;
-
+    text-align: center;
   }
 
   .btn:hover{
     background-color: #000;
+  }
+
+  .small{
+    font-size: 14px;
+    width: 80px;
   }
 
 #controls{

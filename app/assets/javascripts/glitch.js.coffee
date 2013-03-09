@@ -17,6 +17,9 @@ class Glitch
   red_shift: 0.5
   green_shift: 0.5
   blue_shift: 0.5
+  loop_state: 'waiting'
+  loop_in: null
+  loop_out: null
 
   constructor: ->
 
@@ -137,11 +140,39 @@ class Glitch
     @video.load()
     $(@video).on('loadedmetadata', (=>
       sounds.connectVideoAudio(@video)
+      #@video.currentTime = 100
+      #@video.playbackRate = -0.9
       @video.play()
       @fftData = new Uint8Array(sounds.analyser.frequencyBinCount)
       @animate()
       @fpsOut = $('#fps')
       setInterval((=>@fpsOut.text(Math.round(@fps))), 1000)
+      #setInterval((=>@video.currentTime=30), 500)
+    ))
+
+  hitLoop: ->
+    v = $(@video)[0]
+    
+    if @loop_state is 'looping'
+      $(@video).unbind('timeupdate.loops')
+      @loop_state = 'waiting'
+      return "Loop IN"
+    else if @loop_state is 'waiting'
+      @loop_in = v.currentTime
+      @loop_state = 'looped_in'
+      return "Loop OUT"
+    else if @loop_state is 'looped_in' 
+      @loop_out = v.currentTime
+      @loop_state = 'looping'
+      @addLoop()
+      return "STOP"
+
+  addLoop: ->
+    that=@
+    console.log(@loop_out)
+    $(@video).bind('timeupdate.loops', (->
+      if @currentTime > that.loop_out
+        @currentTime = that.loop_in
     ))
 
 $(document).ready ->
