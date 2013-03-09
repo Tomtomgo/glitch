@@ -60,7 +60,7 @@ class Control
 
     $('#playback_rate').slider(
       min: 0.5
-      max: 2
+      max: 4
       step: 0.1
       slide: (e,ui)->
         window.glitch.setPlaybackRate(ui.value)

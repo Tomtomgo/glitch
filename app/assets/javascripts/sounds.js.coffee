@@ -11,7 +11,7 @@ class Sounds
     source = @context.createMediaElementSource(element)
     
     @setupAnalyzer(source)
-    #@addEffects(source)
+    @addEffects(source)
     source.connect(@context.destination)
     
   addEffects: (source) ->
