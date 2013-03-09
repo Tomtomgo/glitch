@@ -27,7 +27,7 @@ class Sounds
                 )
     
     @delay = new @tuna.Delay(
-                    feedback: 0.6,
+                    feedback: 0.8,
                     delayTime: 250,
                     wetLevel: 0.5,
                     dryLevel: 0.5

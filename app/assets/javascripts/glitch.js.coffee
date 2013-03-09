@@ -83,7 +83,6 @@ class Glitch
     
     @data_ctx.drawImage(@video, 0,0, dCanvasWidth, dCanvasHeight)
     imageOutData = @data_ctx.getImageData(0, 0, dCanvasWidth, dCanvasHeight)
-
     data = imageOutData.data
     
     low = 30
@@ -93,17 +92,26 @@ class Glitch
     variation = if @fftData[low] > @low_threshold then Math.round(175-@fftData[low]) else 0
     bend = if @fftData[mid] > @mid_threshold then Math.round(175-@fftData[mid]) else 0
     
-    #variation_4 = variation*4
-
     red_stay = 1 - @red_shift
     green_stay = 1 - @red_shift
     blue_stay = 1 - @red_shift
 
+    # iteration vars
     t = 0
-    widest_pixel = (dCanvasWidth*4)-1
+    line_max_index = Math.round((dCanvasWidth)*4)
+    line_half_index = Math.round(line_max_index / 2)
+    current_line = 0
 
     for i in [0..data.length] by 1 # e,i in data #
 
+      #if (i % line_max_index == 0)
+      #  current_line += 1
+      #  middle = ((current_line) * line_max_index)-line_half_index
+      
+      #if i >= middle
+      #  index = ((middle-1)-(i-middle))
+      #  data[i] = data[index]
+      #else
       if variation!=0
         data[i-variation] = (data[i+variation]*@red_shift)+(data[i]*red_stay) if ((i&3) is 0)
         data[i-variation] = (data[i+variation]*@green_shift)+(data[i]*green_stay) if ((i&3) is 1)
@@ -116,7 +124,7 @@ class Glitch
         if (i&3) is 3
           data[i] = data[i+bend+@sineMemo_20[t]]
       
-        if i % widest_pixel == 0
+        if i % line_max_index == 0
           t+=1
     
     @data_ctx.putImageData(imageOutData, 0, 0)
