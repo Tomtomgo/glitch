@@ -20,6 +20,7 @@ class Glitch
   loop_state: 'waiting'
   loop_in: null
   loop_out: null
+  mirror: false
 
   constructor: ->
 
@@ -101,31 +102,39 @@ class Glitch
     line_max_index = Math.round((dCanvasWidth)*4)
     line_half_index = Math.round(line_max_index / 2)
     current_line = 0
+    skip_it = 0
 
     for i in [0..data.length] by 1 # e,i in data #
 
-      #if (i % line_max_index == 0)
-      #  current_line += 1
-      #  middle = ((current_line) * line_max_index)-line_half_index
-      
-      #if i >= middle
-      #  index = ((middle-1)-(i-middle))
-      #  data[i] = data[index]
-      #else
-      if variation!=0
-        data[i-variation] = (data[i+variation]*@red_shift)+(data[i]*red_stay) if ((i&3) is 0)
-        data[i-variation] = (data[i+variation]*@green_shift)+(data[i]*green_stay) if ((i&3) is 1)
-        data[i-variation] = (data[i+variation]*@blue_shift)+(data[i]*blue_stay) if ((i&3) is 2)
-        # & 3 means % 4
+      if skip_it > 0
+        skip_it -= 1
+        continue
 
-      # Horizontal lines
-      if bend != 0
-
-        if (i&3) is 3
-          data[i] = data[i+bend+@sineMemo_20[t]]
+      if (i % line_max_index == 0)
+        current_line += 1
+        middle = ((current_line) * line_max_index)-line_half_index
       
-        if i % line_max_index == 0
-          t+=1
+      if @mirror and i >= middle
+        index = ((middle)-(i-middle))
+        data[i] = data[index]
+        data[i+1] = data[index+1]
+        data[i+2] = data[index+2]
+        data[i+3] = data[index+3]
+        skip_it=3
+      else if variation!=0
+          data[i-variation] = (data[i+variation]*@red_shift)+(data[i]*red_stay) if ((i&3) is 0)
+          data[i-variation] = (data[i+variation]*@green_shift)+(data[i]*green_stay) if ((i&3) is 1)
+          data[i-variation] = (data[i+variation]*@blue_shift)+(data[i]*blue_stay) if ((i&3) is 2)
+          # & 3 means % 4
+
+        # Horizontal lines
+        if bend != 0
+
+          if (i&3) is 3
+            data[i] = data[i+bend+@sineMemo_20[t]]
+        
+          if i % line_max_index == 0
+            t+=1
     
     @data_ctx.putImageData(imageOutData, 0, 0)
     @ctx.drawImage(@data_canvas, 0,0, canvasWidth, canvasHeight)
@@ -174,6 +183,15 @@ class Glitch
       @loop_state = 'looping'
       @addLoop()
       return "STOP"
+
+  mirrorIt: ->
+    if @mirror
+      @mirror = false
+      return "MIRROR"
+    else
+      @mirror = true
+      return "UNMIRROR"
+
 
   addLoop: ->
     that=@

@@ -74,6 +74,10 @@ class Control
       $(@).text(window.sounds.fxSet())
     )
 
+    $('#mirror').click(->
+      $(@).text(window.glitch.mirrorIt())
+    )
+
   updateControls: ->
     $('#low_threshold').slider('value', window.glitch.low_threshold)
     $('#mid_threshold').slider('value', window.glitch.mid_threshold)
