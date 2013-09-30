@@ -87,11 +87,10 @@ class Glitch
     data = imageOutData.data
     
     low = 30
-    high = 500
     mid = 250
 
-    variation = if @fftData[low] > @low_threshold then Math.round(175-@fftData[low]) else 0
-    bend = if @fftData[mid] > @mid_threshold then Math.round(175-@fftData[mid]) else 0
+    variation = if @fftData[low] > @low_threshold then Math.round(150-@fftData[low]) else 0
+    bend = if @fftData[mid] > @mid_threshold then Math.round(150-@fftData[mid]) else 0
     
     red_stay = 1 - @red_shift
     green_stay = 1 - @red_shift
@@ -133,7 +132,7 @@ class Glitch
           if (i&3) is 3
             data[i] = data[i+bend+@sineMemo_20[t]]
         
-          if i % line_max_index == 0
+          if i/4 % line_max_index == 0
             t+=1
     
     @data_ctx.putImageData(imageOutData, 0, 0)
